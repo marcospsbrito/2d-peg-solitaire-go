@@ -1,19 +1,19 @@
 package main
 
-import (
-	"fmt"
+import 	"fmt"
+
+const (
+	UP    = 2
+	LEFT  = 3
+	RIGHT = 4
+	DOWN  = 1
 )
-
-
-const DOWN,UP,LEFT,RIGHT = 1,2,3,4
 
 type tabuleiro struct {
 	pieces       [9][9]int
-	originCoord  [2]int
-	destinyCoord [2]int
+	originCoord,destinyCoord  [2]int
 	movement int
 }
-
 
 func (t *tabuleiro) start() {
 	t.init()
@@ -63,11 +63,11 @@ func (t *tabuleiro) askMovement(){
 		}
 		fmt.Print("Type the number of movement \n")
 		fmt.Scanf("%d", &t.movement)
-		if !t.canMove(t.originCoord[0],t.originCoord[1],t.movement) {
+		if !t.canMove(t.originCoord[0], t.originCoord[1], t.movement) {
 			t.movement = 0
 		}
 	}
-	fmt.Printf("Selected movement %d \n",t.movement)
+	fmt.Printf("Selected movement %d \n", t.movement)
 }
 
 func (t tabuleiro) askUserCoordenate() ([2]int) {
@@ -94,15 +94,18 @@ func (t *tabuleiro) doMovement() {
 
 	for t.hasMovements(){
 		t.printPieces()
-		for !t.isOriginValid() {
+		originValid,destinyValid := false,false
+		for !originValid {
 			t.selectOriginSlot()
+			originValid = t.isOriginValid()
 		}
-		for !t.isDestinyValid() {
+		for !destinyValid{
 			t.selectDestinySlot()
+			destinyValid = t.isDestinyValid()
 		}
 		x, y := t.originCoord[0], t.originCoord[1]
 		slotToMove, slotToFree := [2]int{x, y},[2]int{x, y}
-		switch move :=t.movement; move{
+		switch move := t.movement; move{
 		case 1:
 			slotToMove[0] = slotToMove[0]+2
 			slotToFree[0] = slotToFree[0]+1
@@ -126,10 +129,10 @@ func (t *tabuleiro) doMovement() {
 	}
 
 }
-func (tabuleiro *tabuleiro) printPieces() {
+func (t *tabuleiro) printPieces() {
 	fmt.Println("\\\\\tY\t0\t1\t2\t3\t4\t5\t6\t7\t8\t|")
 	fmt.Println("X \t\t__\t__\t__\t__\t__\t__\t__\t__\t__\t")
-	for x, line := range tabuleiro.pieces{
+	for x, line := range t.pieces{
 		fmt.Print(x,"\t|\t")
 		for _, piece := range line{
 			if piece == -1 {
@@ -147,7 +150,7 @@ func (tabuleiro *tabuleiro) printPieces() {
 func (t *tabuleiro) hasMovements() bool{
 	for i:=0; i<9;i++{
 		for j:=0; j<9;j++{
-			if(t.hasMovement(i,j)){
+			if t.hasMovement(i,j) {
 				return true
 			}
 		}
@@ -158,19 +161,22 @@ func (t *tabuleiro) hasMovement(x int, y int) bool{
 	return !t.slotFree([2]int{x, y}) && t.canMove(x, y,1) || t.canMove(x, y, 2) || t.canMove(x, y,3) || t.canMove(x , y,4)
 }
 func (t *tabuleiro) isOriginValid() bool{
-	valid := t.hasMovement(t.originCoord[0],t.originCoord[1]) && t.getPiece(t.originCoord[0],t.originCoord[1]) > 0
-	if(!valid) {
-		fmt.Printf("Slot (%d, %d) is invalid.\n",t.originCoord[0],t.originCoord[1])
+	valid := t.hasMovement(t.originCoord[0], t.originCoord[1]) && t.getPiece(t.originCoord[0], t.originCoord[1]) > 0
+	if !valid  {
+		fmt.Printf("Slot (%d, %d) is invalid.\n", t.originCoord[0], t.originCoord[1])
 	}
-	return valid;
+	return valid
 }
 func (t *tabuleiro) canOriginMove(direction int) bool{
-	return t.canMove(t.originCoord[0],t.originCoord[1],direction)
+	return t.canMove(t.originCoord[0], t.originCoord[1],direction)
 }
 func (t *tabuleiro) canMove(x int, y int, direction int) bool{
+	if direction <1 || direction > 4{
+		return false
+	}
 	moves := [4][2]int{{x+2,y},{x-2,y},{x,y-2},{x,y+2}}
 	piecesToEat := [4][2]int{{x+1,y},{x-1,y},{x,y-1},{x,y+1}}
-	if t.coordsValid(x,y) && !t.slotFree([2]int{x,y}) && t.slotFree(moves[direction-1]) && !t.slotFree(piecesToEat[direction-1]){
+	if t.coordsValid(x,y) && !t.slotFree([2]int{x, y}) && t.slotFree(moves[direction-1]) && !t.slotFree(piecesToEat[direction-1]){
 			return true
 	}
 	return false
@@ -201,10 +207,8 @@ func (t *tabuleiro) isDestinyValid() bool{
 		fmt.Println("Invalid movement! - ", move)
 	}
 	if t.coordsValid(coords[0],coords[1]) && t.getPiece(coords[0], coords[1]) == 0 {
-		fmt.Println("Slot (%d, %d) is Free.")
 		return true
 	}
-	fmt.Printf("Slot (%d, %d) is not Free.\n",coords[0],coords[1])
 	return false
 }
 
