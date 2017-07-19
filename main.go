@@ -50,6 +50,7 @@ type tabuleiro struct {
 	piecesMap map[int]*piece
 	pieceSelected int
 	movement int
+	moves int
 }
 
 func (t *tabuleiro) start() {
@@ -57,6 +58,10 @@ func (t *tabuleiro) start() {
 	fmt.Println("The game started!")
 	t.doMovement()
 	t.printPieces()
+	fmt.Printf("Game finish! %d remains on the table.\n\n",44-t.moves)
+	if t.moves==45 {
+		fmt.Println("YOU WON!!! Congratulations!")
+	}
 }
 
 func (t *tabuleiro)  init(){
@@ -145,10 +150,11 @@ func (t *tabuleiro) doMovement() {
 		}
 		t.moveSelectedPiece()
 		t.movement=0
+		t.moves++
 		fmt.Println("Moviment done!")
 	}
-
 }
+
 func (t *tabuleiro) moveSelectedPiece() {
 	s := t.getPiece(t.pieceSelected)
 	switch move := t.movement; move{
